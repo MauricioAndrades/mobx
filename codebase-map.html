@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codebase Map</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2129;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #484f58;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --accent3: #d2a8ff;
+    --accent4: #f0883e;
+    --accent5: #f778ba;
+    --danger: #f85149;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', -apple-system, sans-serif;
+}
+
+body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+    overflow: hidden;
+}
+
+header {
+    grid-column: 1 / -1;
+    padding: 12px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+header h1 {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+header .stats {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    display: flex;
+    gap: 16px;
+}
+
+header .stats span { color: var(--accent); }
+
+.sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar input {
+    width: 100%;
+    padding: 8px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 12px;
+    outline: none;
+}
+
+.sidebar input:focus { border-color: var(--accent); }
+
+.sidebar h2 {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    padding: 8px 0 4px;
+}
+
+.sidebar .view-toggle {
+    display: flex;
+    gap: 4px;
+}
+
+.sidebar .view-toggle button {
+    flex: 1;
+    padding: 6px 8px;
+    font-size: 11px;
+    font-family: var(--sans);
+    font-weight: 500;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.sidebar .view-toggle button.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+}
+
+.sidebar .view-toggle button:hover:not(.active) {
+    border-color: var(--text3);
+    color: var(--text);
+}
+
+.file-list { display: flex; flex-direction: column; gap: 2px; overflow-y: auto; flex: 1; }
+
+.file-item {
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.1s;
+}
+
+.file-item:hover { background: var(--surface2); }
+.file-item.selected { background: var(--accent); color: var(--bg); }
+
+.file-item .name {
+    font-family: var(--mono);
+    font-size: 11px;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.file-item .badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--surface2);
+    color: var(--text2);
+}
+
+.file-item.selected .badge { background: rgba(0,0,0,0.2); color: inherit; }
+
+.dir-header {
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    margin-top: 6px;
+}
+
+.main {
+    position: relative;
+    overflow: hidden;
+}
+
+svg {
+    width: 100%;
+    height: 100%;
+}
+
+.link { stroke-opacity: 0.3; fill: none; }
+.link:hover { stroke-opacity: 0.8; }
+.link.type-only { stroke-dasharray: 4,3; }
+.link.highlighted { stroke-opacity: 0.9; stroke-width: 2px; }
+.link.dimmed { stroke-opacity: 0.04; }
+
+.node circle {
+    stroke-width: 1.5px;
+    cursor: pointer;
+    transition: r 0.2s;
+}
+
+.node text {
+    font-family: var(--mono);
+    font-size: 9px;
+    fill: var(--text2);
+    pointer-events: none;
+}
+
+.node.selected circle { stroke-width: 3px; }
+.node.dimmed circle { opacity: 0.15; }
+.node.dimmed text { opacity: 0.1; }
+.node.highlighted circle { filter: drop-shadow(0 0 6px var(--accent)); }
+
+.tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 12px;
+    max-width: 360px;
+    z-index: 10;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.tooltip.visible { opacity: 1; }
+
+.tooltip h3 {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--accent);
+}
+
+.tooltip .row {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    font-size: 11px;
+}
+
+.tooltip .row .label { color: var(--text2); }
+.tooltip .row .value { font-family: var(--mono); color: var(--text); }
+
+.tooltip .section {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+}
+
+.tooltip .section h4 {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    margin-bottom: 4px;
+}
+
+.tooltip .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 9px;
+    padding: 1px 5px;
+    margin: 1px;
+    border-radius: 3px;
+}
+
+.tooltip .tag.type { background: rgba(210,168,255,0.15); color: var(--accent3); }
+.tooltip .tag.fn { background: rgba(63,185,80,0.15); color: var(--accent2); }
+.tooltip .tag.cls { background: rgba(240,136,62,0.15); color: var(--accent4); }
+.tooltip .tag.cnst { background: rgba(88,166,255,0.15); color: var(--accent); }
+
+.detail-panel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 380px;
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    padding: 16px;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.2s ease;
+    z-index: 5;
+}
+
+.detail-panel.open { transform: translateX(0); }
+
+.detail-panel .close-btn {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    background: none;
+    border: none;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.detail-panel h3 {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.detail-panel .path {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    margin-bottom: 12px;
+}
+
+.detail-panel .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.detail-panel .stat-box {
+    background: var(--surface2);
+    border-radius: 6px;
+    padding: 8px 10px;
+}
+
+.detail-panel .stat-box .num {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.detail-panel .stat-box .lbl {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+}
+
+.detail-panel h4 {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    margin: 12px 0 6px;
+}
+
+.detail-panel .export-item {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 8px;
+    margin: 2px 0;
+    border-radius: 4px;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.detail-panel .export-item .kind {
+    font-size: 8px;
+    padding: 1px 4px;
+    border-radius: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.detail-panel .dep-item {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 4px 8px;
+    margin: 2px 0;
+    border-radius: 4px;
+    background: var(--surface2);
+    cursor: pointer;
+}
+
+.detail-panel .dep-item:hover { background: var(--border); }
+
+.detail-panel .dep-item .names {
+    font-size: 9px;
+    color: var(--text2);
+    margin-top: 2px;
+}
+
+.legend {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 5;
+}
+
+.legend .item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.legend .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Codebase Map</h1>
+    <div class="stats" id="header-stats"></div>
+</header>
+
+<div class="sidebar">
+    <input type="text" id="search" placeholder="Search files..." autocomplete="off">
+    <div class="view-toggle">
+        <button id="btn-graph" class="active">Graph</button>
+        <button id="btn-deps">Dependencies</button>
+        <button id="btn-types">Type Flow</button>
+    </div>
+    <h2>Files</h2>
+    <div class="file-list" id="file-list"></div>
+</div>
+
+<div class="main" id="main">
+    <svg id="svg"></svg>
+    <div class="tooltip" id="tooltip"></div>
+    <div class="detail-panel" id="detail-panel">
+        <button class="close-btn" id="close-detail">&times;</button>
+        <div id="detail-content"></div>
+    </div>
+    <div class="legend" id="legend"></div>
+</div>
+
+<script>
+const DATA = {"nodes":[],"edges":[],"typeFlows":[],"directories":[],"hubs":[],"summary":{"files":0,"edges":0,"typeFlows":0,"directories":0,"totalExports":0,"totalLines":0}};
+
+const dirColors = {};
+const palette = [
+    '#58a6ff','#3fb950','#d2a8ff','#f0883e','#f778ba',
+    '#79c0ff','#56d364','#bc8cff','#d29922','#ff7b72',
+    '#a5d6ff','#7ee787','#e2c5ff','#ffa657','#ffc8dd',
+];
+const dirs = [...new Set(DATA.nodes.map(n => n.dir))].sort();
+dirs.forEach((d, i) => { dirColors[d] = palette[i % palette.length]; });
+
+const kindColors = { type: '#d2a8ff', interface: '#d2a8ff', function: '#3fb950', class: '#f0883e', const: '#58a6ff', enum: '#f778ba', other: '#8b949e' };
+
+// Header stats
+document.getElementById('header-stats').innerHTML =
+    '<span>' + DATA.summary.files + '</span> files &nbsp; ' +
+    '<span>' + DATA.summary.edges + '</span> imports &nbsp; ' +
+    '<span>' + DATA.summary.totalExports + '</span> exports &nbsp; ' +
+    '<span>' + DATA.summary.totalLines.toLocaleString() + '</span> lines';
+
+// Legend
+const legendEl = document.getElementById('legend');
+legendEl.innerHTML = dirs.map(d =>
+    '<div class="item"><div class="dot" style="background:' + dirColors[d] + '"></div>' + d + '</div>'
+).join('');
+
+// File list
+let selectedNode = null;
+let currentView = 'graph';
+
+function renderFileList(filter = '') {
+    const listEl = document.getElementById('file-list');
+    const lower = filter.toLowerCase();
+    const grouped = new Map();
+    for (const node of DATA.nodes) {
+        if (lower && !node.id.toLowerCase().includes(lower) && !node.label.toLowerCase().includes(lower)) continue;
+        const dir = node.dir;
+        if (!grouped.has(dir)) grouped.set(dir, []);
+        grouped.get(dir).push(node);
+    }
+    let html = '';
+    for (const [dir, files] of grouped) {
+        html += '<div class="dir-header" style="color:' + dirColors[dir] + '">' + dir + '</div>';
+        for (const f of files.sort((a,b) => a.label.localeCompare(b.label))) {
+            const sel = selectedNode === f.id ? ' selected' : '';
+            html += '<div class="file-item' + sel + '" data-id="' + f.id + '">' +
+                '<div class="name">' + f.label + '</div>' +
+                '<div class="badge">' + f.exportCount + 'e ' + f.dependentCount + 'd</div>' +
+                '</div>';
+        }
+    }
+    listEl.innerHTML = html;
+    listEl.querySelectorAll('.file-item').forEach(el => {
+        el.addEventListener('click', () => selectNode(el.dataset.id));
+    });
+}
+renderFileList();
+
+document.getElementById('search').addEventListener('input', (e) => renderFileList(e.target.value));
+
+// SVG setup
+const svgEl = document.getElementById('svg');
+const mainEl = document.getElementById('main');
+let width = mainEl.clientWidth;
+let height = mainEl.clientHeight;
+
+// Simple force simulation (no d3 dependency)
+const SIM = {
+    nodes: DATA.nodes.map(n => ({
+        ...n, x: width/2 + (Math.random()-0.5)*width*0.6, y: height/2 + (Math.random()-0.5)*height*0.6, vx: 0, vy: 0
+    })),
+    edges: DATA.edges.map(e => ({ ...e })),
+    typeFlows: DATA.typeFlows,
+};
+
+const nodeMap = new Map(SIM.nodes.map(n => [n.id, n]));
+
+function tick() {
+    const alpha = 0.3;
+    const repulsion = 800;
+    const attraction = 0.008;
+    const centerForce = 0.01;
+    const damping = 0.85;
+
+    // Repulsion
+    for (let i = 0; i < SIM.nodes.length; i++) {
+        for (let j = i + 1; j < SIM.nodes.length; j++) {
+            const a = SIM.nodes[i], b = SIM.nodes[j];
+            let dx = b.x - a.x, dy = b.y - a.y;
+            let dist = Math.sqrt(dx*dx + dy*dy) || 1;
+            let force = repulsion / (dist * dist);
+            let fx = dx/dist * force, fy = dy/dist * force;
+            a.vx -= fx * alpha; a.vy -= fy * alpha;
+            b.vx += fx * alpha; b.vy += fy * alpha;
+        }
+    }
+
+    // Same-directory clustering
+    for (let i = 0; i < SIM.nodes.length; i++) {
+        for (let j = i + 1; j < SIM.nodes.length; j++) {
+            const a = SIM.nodes[i], b = SIM.nodes[j];
+            if (a.dir !== b.dir) continue;
+            let dx = b.x - a.x, dy = b.y - a.y;
+            let dist = Math.sqrt(dx*dx + dy*dy) || 1;
+            let force = (dist - 60) * 0.003;
+            let fx = dx/dist * force, fy = dy/dist * force;
+            a.vx += fx * alpha; a.vy += fy * alpha;
+            b.vx -= fx * alpha; b.vy -= fy * alpha;
+        }
+    }
+
+    // Attraction along edges
+    for (const edge of SIM.edges) {
+        const s = nodeMap.get(edge.source), t = nodeMap.get(edge.target);
+        if (!s || !t) continue;
+        let dx = t.x - s.x, dy = t.y - s.y;
+        let dist = Math.sqrt(dx*dx + dy*dy) || 1;
+        let force = (dist - 120) * attraction;
+        let fx = dx/dist * force, fy = dy/dist * force;
+        s.vx += fx * alpha; s.vy += fy * alpha;
+        t.vx -= fx * alpha; t.vy -= fy * alpha;
+    }
+
+    // Center gravity
+    for (const n of SIM.nodes) {
+        n.vx += (width/2 - n.x) * centerForce;
+        n.vy += (height/2 - n.y) * centerForce;
+    }
+
+    // Integrate
+    for (const n of SIM.nodes) {
+        n.vx *= damping; n.vy *= damping;
+        n.x += n.vx; n.y += n.vy;
+        n.x = Math.max(30, Math.min(width - 30, n.x));
+        n.y = Math.max(30, Math.min(height - 30, n.y));
+    }
+}
+
+// Pan/zoom state
+let transform = { x: 0, y: 0, k: 1 };
+let isPanning = false;
+let panStart = { x: 0, y: 0 };
+
+svgEl.addEventListener('mousedown', (e) => {
+    if (e.target === svgEl || e.target.tagName === 'line' || e.target.tagName === 'path') {
+        isPanning = true;
+        panStart = { x: e.clientX - transform.x, y: e.clientY - transform.y };
+    }
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (!isPanning) return;
+    transform.x = e.clientX - panStart.x;
+    transform.y = e.clientY - panStart.y;
+    render();
+});
+
+window.addEventListener('mouseup', () => { isPanning = false; });
+
+svgEl.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const rect = svgEl.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    const newK = Math.max(0.1, Math.min(5, transform.k * delta));
+    transform.x = mx - (mx - transform.x) * (newK / transform.k);
+    transform.y = my - (my - transform.y) * (newK / transform.k);
+    transform.k = newK;
+    render();
+}, { passive: false });
+
+// Tooltip
+const tooltipEl = document.getElementById('tooltip');
+function showTooltip(node, x, y) {
+    let html = '<h3>' + node.label + '</h3>';
+    html += '<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:8px">' + node.id + '</div>';
+    html += '<div class="row"><span class="label">Lines</span><span class="value">' + node.stats.lines + '</span></div>';
+    html += '<div class="row"><span class="label">Exports</span><span class="value">' + node.exportCount + '</span></div>';
+    html += '<div class="row"><span class="label">Imported by</span><span class="value">' + node.dependentCount + ' files</span></div>';
+    html += '<div class="row"><span class="label">Depends on</span><span class="value">' + node.dependencyCount + ' files</span></div>';
+    if (node.exports.length > 0) {
+        html += '<div class="section"><h4>Exports</h4>';
+        for (const exp of node.exports.slice(0, 8)) {
+            const cls = exp.kind === 'type' || exp.kind === 'interface' ? 'type' : exp.kind === 'function' ? 'fn' : exp.kind === 'class' ? 'cls' : 'cnst';
+            html += '<span class="tag ' + cls + '">' + exp.kind + ' ' + exp.name + '</span>';
+        }
+        if (node.exports.length > 8) html += '<span class="tag">+' + (node.exports.length - 8) + ' more</span>';
+        html += '</div>';
+    }
+    tooltipEl.innerHTML = html;
+    tooltipEl.style.left = Math.min(x + 12, width - 380) + 'px';
+    tooltipEl.style.top = Math.min(y + 12, height - 200) + 'px';
+    tooltipEl.classList.add('visible');
+}
+function hideTooltip() { tooltipEl.classList.remove('visible'); }
+
+// Detail panel
+function showDetail(nodeId) {
+    const node = nodeMap.get(nodeId);
+    if (!node) return;
+    const panel = document.getElementById('detail-panel');
+    const content = document.getElementById('detail-content');
+
+    const incoming = SIM.edges.filter(e => e.target === nodeId);
+    const outgoing = SIM.edges.filter(e => e.source === nodeId);
+    const typeIn = SIM.typeFlows.filter(f => f.to === nodeId);
+    const typeOut = SIM.typeFlows.filter(f => f.from === nodeId);
+
+    let html = '<h3>' + node.label + '</h3>';
+    html += '<div class="path">' + node.id + '</div>';
+    html += '<div class="stat-grid">';
+    html += '<div class="stat-box"><div class="num">' + node.stats.lines + '</div><div class="lbl">Lines</div></div>';
+    html += '<div class="stat-box"><div class="num">' + node.exportCount + '</div><div class="lbl">Exports</div></div>';
+    html += '<div class="stat-box"><div class="num">' + incoming.length + '</div><div class="lbl">Imported by</div></div>';
+    html += '<div class="stat-box"><div class="num">' + outgoing.length + '</div><div class="lbl">Depends on</div></div>';
+    html += '</div>';
+
+    if (node.exports.length > 0) {
+        html += '<h4>Exports (' + node.exports.length + ')</h4>';
+        for (const exp of node.exports) {
+            const color = kindColors[exp.kind] || kindColors.other;
+            html += '<div class="export-item"><span class="kind" style="background:' + color + '22;color:' + color + '">' + exp.kind + '</span>' + exp.name;
+            if (exp.members && exp.members.length > 0) {
+                html += ' <span style="color:var(--text3);font-size:9px">(' + exp.members.slice(0, 4).join(', ') + (exp.members.length > 4 ? ', ...' : '') + ')</span>';
+            }
+            html += '</div>';
+        }
+    }
+
+    if (outgoing.length > 0) {
+        html += '<h4>Depends on (' + outgoing.length + ')</h4>';
+        for (const e of outgoing) {
+            const target = nodeMap.get(e.target);
+            html += '<div class="dep-item" data-id="' + e.target + '">' + (target?.label ?? e.target);
+            if (e.names.length > 0) html += '<div class="names">' + e.names.join(', ') + '</div>';
+            html += '</div>';
+        }
+    }
+
+    if (incoming.length > 0) {
+        html += '<h4>Imported by (' + incoming.length + ')</h4>';
+        for (const e of incoming) {
+            const source = nodeMap.get(e.source);
+            html += '<div class="dep-item" data-id="' + e.source + '">' + (source?.label ?? e.source);
+            if (e.names.length > 0) html += '<div class="names">' + e.names.join(', ') + '</div>';
+            html += '</div>';
+        }
+    }
+
+    if (typeOut.length > 0) {
+        html += '<h4>Types provided to (' + typeOut.length + ')</h4>';
+        for (const f of typeOut) {
+            const target = nodeMap.get(f.to);
+            html += '<div class="dep-item" data-id="' + f.to + '">' + (target?.label ?? f.to);
+            html += '<div class="names">' + f.types.join(', ') + '</div></div>';
+        }
+    }
+
+    if (typeIn.length > 0) {
+        html += '<h4>Types consumed from (' + typeIn.length + ')</h4>';
+        for (const f of typeIn) {
+            const source = nodeMap.get(f.from);
+            html += '<div class="dep-item" data-id="' + f.from + '">' + (source?.label ?? f.from);
+            html += '<div class="names">' + f.types.join(', ') + '</div></div>';
+        }
+    }
+
+    content.innerHTML = html;
+    panel.classList.add('open');
+
+    content.querySelectorAll('.dep-item').forEach(el => {
+        el.addEventListener('click', () => selectNode(el.dataset.id));
+    });
+}
+
+document.getElementById('close-detail').addEventListener('click', () => {
+    document.getElementById('detail-panel').classList.remove('open');
+    selectedNode = null;
+    renderFileList(document.getElementById('search').value);
+    render();
+});
+
+function selectNode(id) {
+    selectedNode = id;
+    showDetail(id);
+    renderFileList(document.getElementById('search').value);
+    render();
+}
+
+// View toggle
+document.querySelectorAll('.view-toggle button').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentView = btn.id.replace('btn-', '');
+        render();
+    });
+});
+
+// Render
+function render() {
+    const edgesToDraw = currentView === 'types' ? [] : SIM.edges;
+    const typeFlowsToDraw = currentView === 'deps' ? [] : SIM.typeFlows;
+
+    const connectedToSelected = new Set();
+    if (selectedNode) {
+        connectedToSelected.add(selectedNode);
+        for (const e of SIM.edges) {
+            if (e.source === selectedNode) connectedToSelected.add(e.target);
+            if (e.target === selectedNode) connectedToSelected.add(e.source);
+        }
+        for (const f of SIM.typeFlows) {
+            if (f.from === selectedNode) connectedToSelected.add(f.to);
+            if (f.to === selectedNode) connectedToSelected.add(f.from);
+        }
+    }
+
+    let svg = '<g transform="translate(' + transform.x + ',' + transform.y + ') scale(' + transform.k + ')">';
+
+    // Draw import edges
+    for (const edge of edgesToDraw) {
+        const s = nodeMap.get(edge.source), t = nodeMap.get(edge.target);
+        if (!s || !t) continue;
+        let cls = 'link';
+        if (edge.isFullyTypeOnly) cls += ' type-only';
+        if (selectedNode) {
+            if (edge.source === selectedNode || edge.target === selectedNode) cls += ' highlighted';
+            else cls += ' dimmed';
+        }
+        const color = dirColors[s.dir] || '#30363d';
+        svg += '<line class="' + cls + '" x1="' + s.x + '" y1="' + s.y + '" x2="' + t.x + '" y2="' + t.y + '" stroke="' + color + '"/>';
+    }
+
+    // Draw type flow edges
+    for (const flow of typeFlowsToDraw) {
+        const s = nodeMap.get(flow.from), t = nodeMap.get(flow.to);
+        if (!s || !t) continue;
+        let cls = 'link type-only';
+        if (selectedNode) {
+            if (flow.from === selectedNode || flow.to === selectedNode) cls += ' highlighted';
+            else cls += ' dimmed';
+        }
+        const mx = (s.x + t.x) / 2, my = (s.y + t.y) / 2 - 20;
+        svg += '<path class="' + cls + '" d="M' + s.x + ',' + s.y + ' Q' + mx + ',' + my + ' ' + t.x + ',' + t.y + '" stroke="' + (kindColors.type) + '"/>';
+    }
+
+    // Draw nodes
+    for (const node of SIM.nodes) {
+        const r = 4 + Math.sqrt(node.exportCount) * 3;
+        const color = dirColors[node.dir] || '#58a6ff';
+        let cls = 'node';
+        if (node.id === selectedNode) cls += ' selected highlighted';
+        else if (selectedNode && !connectedToSelected.has(node.id)) cls += ' dimmed';
+        else if (selectedNode && connectedToSelected.has(node.id)) cls += ' highlighted';
+
+        svg += '<g class="' + cls + '" data-id="' + node.id + '" transform="translate(' + node.x + ',' + node.y + ')">';
+        svg += '<circle r="' + r + '" fill="' + color + '22" stroke="' + color + '"/>';
+        if (transform.k > 0.5) {
+            svg += '<text x="' + (r + 4) + '" y="3">' + node.label + '</text>';
+        }
+        svg += '</g>';
+    }
+
+    svg += '</g>';
+    svgEl.innerHTML = svg;
+
+    // Attach node events
+    svgEl.querySelectorAll('.node').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectNode(el.dataset.id);
+        });
+        el.addEventListener('mouseenter', (e) => {
+            const node = nodeMap.get(el.dataset.id);
+            if (node) showTooltip(node, e.clientX - mainEl.getBoundingClientRect().left, e.clientY - mainEl.getBoundingClientRect().top);
+        });
+        el.addEventListener('mouseleave', hideTooltip);
+    });
+}
+
+// Initial simulation
+let simSteps = 0;
+function simulate() {
+    tick();
+    simSteps++;
+    render();
+    if (simSteps < 200) requestAnimationFrame(simulate);
+}
+simulate();
+
+// Handle resize
+window.addEventListener('resize', () => {
+    width = mainEl.clientWidth;
+    height = mainEl.clientHeight;
+    render();
+});
+
+// Click on background to deselect
+svgEl.addEventListener('click', (e) => {
+    if (e.target === svgEl) {
+        selectedNode = null;
+        document.getElementById('detail-panel').classList.remove('open');
+        renderFileList(document.getElementById('search').value);
+        render();
+    }
+});
+</script>
+</body>
+</html>

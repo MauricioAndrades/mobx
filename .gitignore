@@ -16,3 +16,10 @@ dist/
 yarn-error.log
 build/
 .DS_Store
+node_modules/
+.env
+.env.local
+__pycache__/
+.venv/
+*.pem
+credentials.json
