@@ -6,10 +6,10 @@ The TSConfig file can be either a `tsconfig.json` or `jsconfig.json`, both have 
 This page covers all of the different options available inside a TSConfig file. There are over 100 options, and this page is not built to be read from top to bottom. Instead it has five main sections:
 
 - A categorized overview of all compiler flags
-- The [root fields](#Top%20Level) for letting TypeScript know what files are available
-- The [`compilerOptions`](#compilerOptions) fields, this is the majority of the document
-- The [`watchOptions`](#watchOptions) fields, for tweaking the watch mode
-- The [`typeAcquisition`](#typeAcquisition) fields, for tweaking how types are added to JavaScript projects
+- The [root fields](#root-fields) for letting TypeScript know what files are available
+- The [`compilerOptions`](#compiler-options) fields, this is the majority of the document
+- The [`watchOptions`](#watch-options) fields, for tweaking the watch mode
+- The [`typeAcquisition`](#type-acquisition) fields, for tweaking how types are added to JavaScript projects
 
 If you are starting a TSConfig from scratch, you may want to consider using `tsc --init` to bootstrap or use a [TSConfig base](https://github.com/tsconfig/bases#centralized-recommendations-for-tsconfig-bases).
 
@@ -21,7 +21,7 @@ Starting up are the root options in the TSConfig - these options relate to how y
 
 ### Files - `files`
 
-> Include a list of files. This does not support glob patterns, as opposed to [`include`](#include).
+> Include a list of files. This does not support glob patterns, as opposed to [`include`](#include---include).
 
 Specifies an allowlist of files to include in the program. An error occurs if any of the files can't be found.
 
@@ -43,7 +43,7 @@ Specifies an allowlist of files to include in the program. An error occurs if an
 ```
 
 This is useful when you only have a small number of files and don't need to use a glob to reference many files.
-If you need that then use [`include`](#include).
+If you need that then use [`include`](#include---include).
 
 ### Extends - `extends`
 
@@ -54,10 +54,10 @@ The path may use Node.js style resolution.
 
 The configuration from the base file are loaded first, then overridden by those in the inheriting config file. All relative paths found in the configuration file will be resolved relative to the configuration file they originated in.
 
-It's worth noting that [`files`](#files), [`include`](#include), and [`exclude`](#exclude) from the inheriting config file _overwrite_ those from the
+It's worth noting that [`files`](#files---files), [`include`](#include---include), and [`exclude`](#exclude---exclude) from the inheriting config file _overwrite_ those from the
 base config file, and that circularity between configuration files is not allowed.
 
-Currently, the only top-level property that is excluded from inheritance is [`references`](#references).
+Currently, the only top-level property that is excluded from inheritance is [`references`](#references---references).
 
 ###### Example
 
@@ -158,18 +158,18 @@ Which would include:
 - `?` matches any one character (excluding directory separators)
 - `**/` matches any directory nested to any level
 
-If the last path segment in a pattern does not contain a file extension or wildcard character, then it is treated as a directory, and files with supported extensions inside that directory are included (e.g. `.ts`, `.tsx`, and `.d.ts` by default, with `.js` and `.jsx` if [`allowJs`](#allowJs) is set to true).
+If the last path segment in a pattern does not contain a file extension or wildcard character, then it is treated as a directory, and files with supported extensions inside that directory are included (e.g. `.ts`, `.tsx`, and `.d.ts` by default, with `.js` and `.jsx` if [`allowJs`](#allow-js---allowjs) is set to true).
 
 ### Exclude - `exclude`
 
-> Filters results from the [`include`](#include) option.
+> Filters results from the [`include`](#include---include) option.
 
-Specifies an array of filenames or patterns that should be skipped when resolving [`include`](#include).
+Specifies an array of filenames or patterns that should be skipped when resolving [`include`](#include---include).
 
-**Important**: `exclude` _only_ changes which files are included as a result of the [`include`](#include) setting.
-A file specified by `exclude` can still become part of your codebase due to an `import` statement in your code, a `types` inclusion, a `/// <reference` directive, or being specified in the [`files`](#files) list.
+**Important**: `exclude` _only_ changes which files are included as a result of the [`include`](#include---include) setting.
+A file specified by `exclude` can still become part of your codebase due to an `import` statement in your code, a `types` inclusion, a `/// <reference` directive, or being specified in the [`files`](#files---files) list.
 
-It is not a mechanism that **prevents** a file from being included in the codebase - it simply changes what the [`include`](#include) setting finds.
+It is not a mechanism that **prevents** a file from being included in the codebase - it simply changes what the [`include`](#include---include) setting finds.
 
 ### References - `references`
 
@@ -178,7 +178,7 @@ It is not a mechanism that **prevents** a file from being included in the codeba
 Project references are a way to structure your TypeScript programs into smaller pieces.
 Using Project References can greatly improve build and editor interaction times, enforce logical separation between components, and organize your code in new and improved ways.
 
-You can read more about how references works in the [Project References](/docs/handbook/project-references.html) section of the handbook
+You can read more about how references works in the [Project References](https://www.typescriptlang.org/docs/handbook/project-references.html) section of the handbook
 
 ---
 
@@ -789,9 +789,9 @@ This does not affect errors on the basis of code which _appears_ to be unreachab
 
 > Specify what module code is generated.
 
-Sets the module system for the program. See the [theory behind TypeScript’s `module` option](/docs/handbook/modules/theory.html#the-module-output-format) and [its reference page](/docs/handbook/modules/reference.html#the-module-compiler-option) for more information. You very likely want `"nodenext"` for modern Node.js projects and `preserve` or `esnext` for code that will be bundled.
+Sets the module system for the program. See the [theory behind TypeScript’s `module` option](https://www.typescriptlang.org/docs/handbook/modules/theory.html#the-module-output-format) and [its reference page](https://www.typescriptlang.org/docs/handbook/modules/reference.html#the-module-compiler-option) for more information. You very likely want `"nodenext"` for modern Node.js projects and `preserve` or `esnext` for code that will be bundled.
 
-Changing `module` affects [`moduleResolution`](#moduleResolution) which [also has a reference page](/docs/handbook/modules/reference.html#the-moduleresolution-compiler-option).
+Changing `module` affects [`moduleResolution`](#module-resolution---moduleresolution) which [also has a reference page](https://www.typescriptlang.org/docs/handbook/modules/reference.html#the-moduleresolution-compiler-option).
 
 Here's some example output for this file:
 
@@ -855,7 +855,7 @@ In addition to the base functionality of `ES2015`/`ES6`, `ES2020` adds support f
 
 ###### `node16`/`node18`/`node20`/`nodenext`
 
-The `node16`, `node18`, `node20`, and `nodenext` modes integrate with Node's [native ECMAScript Module support](https://nodejs.org/api/esm.html). The emitted JavaScript uses either `CommonJS` or `ES2020` output depending on the file extension and the value of the `type` setting in the nearest `package.json`. Module resolution also works differently. You can learn more in the [handbook](/docs/handbook/esm-node.html) and [Modules Reference](/docs/handbook/modules/reference.html#node16-node18-node20-nodenext).
+The `node16`, `node18`, `node20`, and `nodenext` modes integrate with Node's [native ECMAScript Module support](https://nodejs.org/api/esm.html). The emitted JavaScript uses either `CommonJS` or `ES2020` output depending on the file extension and the value of the `type` setting in the nearest `package.json`. Module resolution also works differently. You can learn more in the [handbook](https://www.typescriptlang.org/docs/handbook/esm-node.html) and [Modules Reference](https://www.typescriptlang.org/docs/handbook/modules/reference.html#node16-node18-node20-nodenext).
 
 - `node16` is available from TypeScript 4.7
 - `node18` is available from TypeScript 5.8 as a replacement for `node16`, with added support for import attributes.
@@ -889,7 +889,7 @@ export const twoPi = valueOfPi * 2;
 
 > Specify the root folder within your source files.
 
-**Default**: The longest common path of all non-declaration input files. If [`composite`](#composite) is set, the default is instead the directory containing the `tsconfig.json` file.
+**Default**: The longest common path of all non-declaration input files. If [`composite`](#composite---composite) is set, the default is instead the directory containing the `tsconfig.json` file.
 
 When TypeScript compiles files, it keeps the same directory structure in the output directory as exists in the input directory.
 
@@ -908,7 +908,7 @@ MyProj
 
 The inferred value for `rootDir` is the longest common path of all non-declaration input files, which in this case is `core/`.
 
-If your [`outDir`](#outDir) was `dist`, TypeScript would write this tree:
+If your [`outDir`](#out-dir---outdir) was `dist`, TypeScript would write this tree:
 
 ```
 MyProj
@@ -933,9 +933,9 @@ MyProj
 ```
 
 Importantly, `rootDir` **does not affect which files become part of the compilation**.
-It has no interaction with the [`include`](#include), [`exclude`](#exclude), or [`files`](#files) `tsconfig.json` settings.
+It has no interaction with the [`include`](#include---include), [`exclude`](#exclude---exclude), or [`files`](#files---files) `tsconfig.json` settings.
 
-Note that TypeScript will never write an output file to a directory outside of [`outDir`](#outDir), and will never skip emitting a file.
+Note that TypeScript will never write an output file to a directory outside of [`outDir`](#out-dir---outdir), and will never skip emitting a file.
 For this reason, `rootDir` also enforces that all files which need to be emitted are underneath the `rootDir` path.
 
 For example, let's say you had this tree:
@@ -949,7 +949,7 @@ MyProj
 ├── helpers.ts
 ```
 
-It would be an error to specify `rootDir` as `core` _and_ [`include`](#include) as `*` because it creates a file (`helpers.ts`) that would need to be emitted _outside_ the [`outDir`](#outDir) (i.e. `../helpers.js`).
+It would be an error to specify `rootDir` as `core` _and_ [`include`](#include---include) as `*` because it creates a file (`helpers.ts`) that would need to be emitted _outside_ the [`outDir`](#out-dir---outdir) (i.e. `../helpers.js`).
 
 #### Module Resolution - `moduleResolution`
 
@@ -957,12 +957,12 @@ It would be an error to specify `rootDir` as `core` _and_ [`include`](#include) 
 
 Specify the module resolution strategy:
 
-- `'node16'` or `'nodenext'` for modern versions of Node.js. Node.js v12 and later supports both ECMAScript imports and CommonJS `require`, which resolve using different algorithms. These `moduleResolution` values, when combined with the corresponding [`module`](#module) values, picks the right algorithm for each resolution based on whether Node.js will see an `import` or `require` in the output JavaScript code.
+- `'node16'` or `'nodenext'` for modern versions of Node.js. Node.js v12 and later supports both ECMAScript imports and CommonJS `require`, which resolve using different algorithms. These `moduleResolution` values, when combined with the corresponding [`module`](#module---module) values, picks the right algorithm for each resolution based on whether Node.js will see an `import` or `require` in the output JavaScript code.
 - `'node10'` (previously called `'node'`) for Node.js versions older than v10, which only support CommonJS `require`. You probably won't need to use `node10` in modern code.
 - `'bundler'` for use with bundlers. Like `node16` and `nodenext`, this mode supports package.json `"imports"` and `"exports"`, but unlike the Node.js resolution modes, `bundler` never requires file extensions on relative paths in imports.
 - `'classic'` was used in TypeScript before the release of 1.6. `classic` should not be used.
 
-There are reference pages explaining the [theory behind TypeScript’s module resolution](https://www.typescriptlang.org/docs/handbook/modules/theory.html#module-resolution) and the [details of each option](/docs/handbook/modules/reference.html#the-moduleresolution-compiler-option).
+There are reference pages explaining the [theory behind TypeScript’s module resolution](https://www.typescriptlang.org/docs/handbook/modules/theory.html#module-resolution) and the [details of each option](https://www.typescriptlang.org/docs/handbook/modules/reference.html#the-moduleresolution-compiler-option).
 
 #### Base URL - `baseUrl`
 
@@ -988,13 +988,13 @@ console.log(helloWorld);
 
 This resolution has higher priority than lookups from `node_modules`.
 
-This feature was designed for use in conjunction with AMD module loaders in the browser, and is not recommended in any other context. As of TypeScript 4.1, `baseUrl` is no longer required to be set when using [`paths`](#paths).
+This feature was designed for use in conjunction with AMD module loaders in the browser, and is not recommended in any other context. As of TypeScript 4.1, `baseUrl` is no longer required to be set when using [`paths`](#paths---paths).
 
 #### Paths - `paths`
 
 > Specify a set of entries that re-map imports to additional lookup locations.
 
-A series of entries which re-map imports to lookup locations relative to the [`baseUrl`](#baseUrl) if set, or to the tsconfig file itself otherwise. There is a larger coverage of `paths` in [the `moduleResolution` reference page](/docs/handbook/modules/reference.html#paths).
+A series of entries which re-map imports to lookup locations relative to the [`baseUrl`](#base-url---baseurl) if set, or to the tsconfig file itself otherwise. There is a larger coverage of `paths` in [the `moduleResolution` reference page](https://www.typescriptlang.org/docs/handbook/modules/reference.html#paths).
 
 `paths` lets you declare how TypeScript should resolve an import in your `require`/`import`s.
 
@@ -1152,7 +1152,7 @@ When you have this option set, by not including a module in the `types` array it
 - Will not add globals to your project (e.g `process` in node, or `expect` in Jest)
 - Will not have exports appear as auto-import recommendations
 
-This feature differs from [`typeRoots`](#typeRoots) in that it is about specifying only the exact types you want included, whereas [`typeRoots`](#typeRoots) supports saying you want particular folders.
+This feature differs from [`typeRoots`](#type-roots---typeroots) in that it is about specifying only the exact types you want included, whereas [`typeRoots`](#type-roots---typeroots) supports saying you want particular folders.
 
 #### Allow Umd Global Access - `allowUmdGlobalAccess`
 
@@ -1184,7 +1184,7 @@ import * as foo from "./foo";
 
 TypeScript will look for the relative files `./foo.ios.ts`, `./foo.native.ts`, and finally `./foo.ts`.
 
-Note the empty string `""` in [`moduleSuffixes`](#moduleSuffixes) which is necessary for TypeScript to also look-up `./foo.ts`.
+Note the empty string `""` in [`moduleSuffixes`](#module-suffixes---modulesuffixes) which is necessary for TypeScript to also look-up `./foo.ts`.
 
 This feature can be useful for React Native projects where each target platform can use a separate tsconfig.json with differing `moduleSuffixes`.
 
@@ -1203,7 +1203,7 @@ The expectation here is that your resolver (e.g. your bundler, a runtime, or som
 
 Rewrite `.ts`, `.tsx`, `.mts`, and `.cts` file extensions in relative import paths to their JavaScript equivalent in output files.
  
-For more information, see the [TypeScript 5.7 release notes](/docs/handbook/release-notes/typescript-5-7.html#path-rewriting-for-relative-paths).
+For more information, see the [TypeScript 5.7 release notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-7.html#path-rewriting-for-relative-paths).
 
 #### Resolve package.json Exports - `resolvePackageJsonExports`
 
@@ -1211,7 +1211,7 @@ For more information, see the [TypeScript 5.7 release notes](/docs/handbook/rele
 
 `--resolvePackageJsonExports` forces TypeScript to consult [the `exports` field of `package.json` files](https://nodejs.org/api/packages.html#exports) if it ever reads from a package in `node_modules`.
 
-This option defaults to `true` under the `node16`, `nodenext`, and `bundler` options for [`--moduleResolution`](#moduleResolution).
+This option defaults to `true` under the `node16`, `nodenext`, and `bundler` options for [`--moduleResolution`](#module-resolution---moduleresolution).
 
 #### Resolve package.json Imports - `resolvePackageJsonImports`
 
@@ -1219,7 +1219,7 @@ This option defaults to `true` under the `node16`, `nodenext`, and `bundler` opt
 
 `--resolvePackageJsonImports` forces TypeScript to consult [the `imports` field of `package.json` files](https://nodejs.org/api/packages.html#imports) when performing a lookup that starts with `#` from a file whose ancestor directory contains a `package.json`.
 
-This option defaults to `true` under the `node16`, `nodenext`, and `bundler` options for [`--moduleResolution`](#moduleResolution).
+This option defaults to `true` under the `node16`, `nodenext`, and `bundler` options for [`--moduleResolution`](#module-resolution---moduleresolution).
 
 #### Custom Conditions - `customConditions`
 
@@ -1260,7 +1260,7 @@ So when importing from a package with the following `package.json`
 
 TypeScript will try to look for files corresponding to `foo.mjs`.
 
-This field is only valid under the `node16`, `nodenext`, and `bundler` options for [`--moduleResolution`](#moduleResolution).
+This field is only valid under the `node16`, `nodenext`, and `bundler` options for [`--moduleResolution`](#module-resolution---moduleresolution).
 
 #### noUncheckedSideEffectImports - `noUncheckedSideEffectImports`
 
@@ -1424,7 +1424,7 @@ With a corresponding `helloWorld.d.ts`:
 export let helloWorld = "hi";
 ```
 
-When working with `.d.ts` files for JavaScript files you may want to use [`emitDeclarationOnly`](#emitDeclarationOnly) or use [`outDir`](#outDir) to ensure that the JavaScript files are not overwritten.
+When working with `.d.ts` files for JavaScript files you may want to use [`emitDeclarationOnly`](#emit-declaration-only---emitdeclarationonly) or use [`outDir`](#out-dir---outdir) to ensure that the JavaScript files are not overwritten.
 
 #### Declaration Map - `declarationMap`
 
@@ -1493,7 +1493,7 @@ When set, instead of writing out a `.js.map` file to provide source maps, TypeSc
 Although this results in larger JS files, it can be convenient in some scenarios.
 For example, you might want to debug JS files on a webserver that doesn't allow `.map` files to be served.
 
-Mutually exclusive with [`sourceMap`](#sourceMap).
+Mutually exclusive with [`sourceMap`](#source-map---sourcemap).
 
 For example, with this TypeScript:
 
@@ -1529,7 +1529,7 @@ You can then use TypeScript as a tool for providing editor integration, and as a
 
 #### Out File - `outFile`
 
-> Specify a file that bundles all outputs into one JavaScript file. If [`declaration`](#declaration) is true, also designates a file that bundles all .d.ts output.
+> Specify a file that bundles all outputs into one JavaScript file. If [`declaration`](#declaration---declaration) is true, also designates a file that bundles all .d.ts output.
 
 If specified, all _global_ (non-module) files will be concatenated into the single output file specified.
 
@@ -1543,7 +1543,7 @@ This option _cannot_ be used to bundle CommonJS or ES6 modules.
 > Specify an output folder for all emitted files.
 
 If specified, `.js` (as well as `.d.ts`, `.js.map`, etc.) files will be emitted into this directory.
-The directory structure of the original source files is preserved; see [`rootDir`](#rootDir) if the computed root is not what you intended.
+The directory structure of the original source files is preserved; see [`rootDir`](#root-dir---rootdir) if the computed root is not what you intended.
 
 If not specified, `.js` files will be emitted in the same directory as the `.ts` files they were generated from:
 
@@ -1626,7 +1626,7 @@ export function fn(arr: number[]) {
 }
 ```
 
-Turning on [`downlevelIteration`](#downlevelIteration) and `importHelpers` is still false:
+Turning on [`downlevelIteration`](#downlevel-iteration---downleveliteration) and `importHelpers` is still false:
 
 ```ts
 export function fn(arr: number[]) {
@@ -1634,7 +1634,7 @@ export function fn(arr: number[]) {
 }
 ```
 
-Then turning on both [`downlevelIteration`](#downlevelIteration) and `importHelpers`:
+Then turning on both [`downlevelIteration`](#downlevel-iteration---downleveliteration) and `importHelpers`:
 
 ```ts
 export function fn(arr: number[]) {
@@ -1642,7 +1642,7 @@ export function fn(arr: number[]) {
 }
 ```
 
-You can use [`noEmitHelpers`](#noEmitHelpers) when you provide your own implementations of these functions.
+You can use [`noEmitHelpers`](#no-emit-helpers---noemithelpers) when you provide your own implementations of these functions.
 
 #### Downlevel Iteration - `downlevelIteration`
 
@@ -1688,7 +1688,7 @@ for (const s of str) {
 }
 ```
 
-You can use [tslib](https://www.npmjs.com/package/tslib) via [`importHelpers`](#importHelpers) to reduce the amount of inline JavaScript too:
+You can use [tslib](https://www.npmjs.com/package/tslib) via [`importHelpers`](#import-helpers---importhelpers) to reduce the amount of inline JavaScript too:
 
 ```ts
 const str = "Hello!";
@@ -1776,9 +1776,9 @@ Would declare that `index.js` will have sourcemaps at `https://my-website.com/de
 > Include source code in the sourcemaps inside the emitted JavaScript.
 
 When set, TypeScript will include the original content of the `.ts` file as an embedded string in the source map (using the source map's `sourcesContent` property).
-This is often useful in the same cases as [`inlineSourceMap`](#inlineSourceMap).
+This is often useful in the same cases as [`inlineSourceMap`](#inline-source-map---inlinesourcemap).
 
-Requires either [`sourceMap`](#sourceMap) or [`inlineSourceMap`](#inlineSourceMap) to be set.
+Requires either [`sourceMap`](#source-map---sourcemap) or [`inlineSourceMap`](#inline-source-map---inlinesourcemap) to be set.
 
 For example, with this TypeScript:
 
@@ -1794,9 +1794,9 @@ const helloWorld = "hi";
 console.log(helloWorld);
 ```
 
-Then enable building it with `inlineSources` and [`inlineSourceMap`](#inlineSourceMap) enabled there is a comment at the bottom of the file which includes
+Then enable building it with `inlineSources` and [`inlineSourceMap`](#inline-source-map---inlinesourcemap) enabled there is a comment at the bottom of the file which includes
 a source-map for the file.
-Note that the end is different from the example in [`inlineSourceMap`](#inlineSourceMap) because the source-map now contains the original source code also.
+Note that the end is different from the example in [`inlineSourceMap`](#inline-source-map---inlinesourcemap) because the source-map now contains the original source code also.
 
 ```ts
 const helloWorld = "hi";
@@ -1874,7 +1874,7 @@ The JavaScript output is still the same.
 
 > Disable generating custom helper functions like `__extends` in compiled output.
 
-Instead of importing helpers with [`importHelpers`](#importHelpers), you can provide implementations in the global scope for the helpers you use and completely turn off emitting of helper functions.
+Instead of importing helpers with [`importHelpers`](#import-helpers---importhelpers), you can provide implementations in the global scope for the helpers you use and completely turn off emitting of helper functions.
 
 For example, using this `async` function in ES5 requires a `await`-like function and `generator`-like function to run:
 
@@ -2036,13 +2036,13 @@ console.log(defaultCardDeck);
 
 This flag can be used as a way to incrementally add TypeScript files into JS projects by allowing the `.ts` and `.tsx` files to live along-side existing JavaScript files.
 
-It can also be used along-side [`declaration`](#declaration) and [`emitDeclarationOnly`](#emitDeclarationOnly) to [create declarations for JS files](/docs/handbook/declaration-files/dts-from-js.html).
+It can also be used along-side [`declaration`](#declaration---declaration) and [`emitDeclarationOnly`](#emit-declaration-only---emitdeclarationonly) to [create declarations for JS files](https://www.typescriptlang.org/docs/handbook/declaration-files/dts-from-js.html).
 
 #### Check JS - `checkJs`
 
 > Enable error reporting in type-checked JavaScript files.
 
-Works in tandem with [`allowJs`](#allowJs). When `checkJs` is enabled then errors are reported in JavaScript files. This is
+Works in tandem with [`allowJs`](#allow-js---allowjs). When `checkJs` is enabled then errors are reported in JavaScript files. This is
 the equivalent of including `// @ts-check` at the top of all JavaScript files which are included in your project.
 
 For example, this is incorrect JavaScript according to the `parseFloat` type definition which comes with TypeScript:
@@ -2072,11 +2072,11 @@ console.log(pi);
 
 #### Max Node Module JS Depth - `maxNodeModuleJsDepth`
 
-> Specify the maximum folder depth used for checking JavaScript files from `node_modules`. Only applicable with [`allowJs`](#allowJs).
+> Specify the maximum folder depth used for checking JavaScript files from `node_modules`. Only applicable with [`allowJs`](#allow-js---allowjs).
 
 The maximum dependency depth to search under `node_modules` and load JavaScript files.
 
-This flag can only be used when [`allowJs`](#allowJs) is enabled, and is used if you want to have TypeScript infer types for all of the JavaScript inside your `node_modules`.
+This flag can only be used when [`allowJs`](#allow-js---allowjs) is enabled, and is used if you want to have TypeScript infer types for all of the JavaScript inside your `node_modules`.
 
 Ideally this should stay at 0 (the default), and `d.ts` files should be used to explicitly define the shape of modules.
 However, there are cases where you may want to turn this on at the expense of speed and potential accuracy.
@@ -2334,7 +2334,7 @@ For more details, read up on [the original pull request](https://github.com/micr
 
 Require sufficient annotation on exports so other tools can trivially generate declaration files.
  
-For more information, see the [5.5 release notes](/docs/handbook/release-notes/typescript-5-5.html#isolated-declarations)
+For more information, see the [5.5 release notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-5.html#isolated-declarations)
 
 #### Erasable Syntax Only - `erasableSyntaxOnly`
 
@@ -2452,7 +2452,7 @@ This option brings the behavior of TypeScript in-line with Babel, where extra co
 
 #### ES Module Interop - `esModuleInterop`
 
-> Emit additional JavaScript to ease support for importing CommonJS modules. This enables [`allowSyntheticDefaultImports`](#allowSyntheticDefaultImports) for type compatibility.
+> Emit additional JavaScript to ease support for importing CommonJS modules. This enables [`allowSyntheticDefaultImports`](#allow-synthetic-default-imports---allowsyntheticdefaultimports) for type compatibility.
 
 By default (with `esModuleInterop` false or not set) TypeScript treats CommonJS/AMD/UMD modules similar to ES6 modules. In doing this, there are two parts in particular which turned out to be flawed assumptions:
 
@@ -2499,7 +2499,7 @@ _.chunk(["a", "b", "c", "d"], 2);
 
 _Note_: The namespace import `import * as fs from "fs"` only accounts for properties which [are owned](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/hasOwnProperty) (basically properties set on the object and not via the prototype chain) on the imported object. If the module you're importing defines its API using inherited properties, you need to use the default import form (`import fs from "fs"`), or disable `esModuleInterop`.
 
-_Note_: You can make JS emit terser by enabling [`importHelpers`](#importHelpers):
+_Note_: You can make JS emit terser by enabling [`importHelpers`](#import-helpers---importhelpers):
 
 ```ts
 import * as fs from "fs";
@@ -2509,7 +2509,7 @@ fs.readFileSync("file.txt", "utf8");
 _.chunk(["a", "b", "c", "d"], 2);
 ```
 
-Enabling `esModuleInterop` will also enable [`allowSyntheticDefaultImports`](#allowSyntheticDefaultImports).
+Enabling `esModuleInterop` will also enable [`allowSyntheticDefaultImports`](#allow-synthetic-default-imports---allowsyntheticdefaultimports).
 
 #### Preserve Symlinks - `preserveSymlinks`
 
@@ -2543,7 +2543,7 @@ You might choose to set a lower target if your code is deployed to older environ
 The `target` setting changes which JS features are downleveled and which are left intact.
 For example, an arrow function `() => this` will be turned into an equivalent `function` expression if `target` is ES5 or lower.
 
-Changing `target` also changes the default value of [`lib`](#lib).
+Changing `target` also changes the default value of [`lib`](#lib---lib).
 You may "mix and match" `target` and `lib` settings as desired, but you could just set `target` for convenience.
 
 For developer platforms like Node there are baselines for the `target`, depending on the type of platform and its version. You can find a set of community organized TSConfigs at [tsconfig/bases](https://github.com/tsconfig/bases#centralized-recommendations-for-tsconfig-bases), which has configurations for common platforms and their versions.
@@ -2556,7 +2556,7 @@ This setting should be used with caution, since it doesn't mean the same thing b
 > Specify a set of bundled library declaration files that describe the target runtime environment.
 
 TypeScript includes a default set of type definitions for built-in JS APIs (like `Math`), as well as type definitions for things found in browser environments (like `document`).
-TypeScript also includes APIs for newer JS features matching the [`target`](#target) you specify; for example the definition for `Map` is available if [`target`](#target) is `ES6` or newer.
+TypeScript also includes APIs for newer JS features matching the [`target`](#target---target) you specify; for example the definition for `Map` is available if [`target`](#target---target) is `ES6` or newer.
 
 You may want to change these for a few reasons:
 
@@ -2754,7 +2754,7 @@ Enables [experimental support for decorators](https://github.com/tc39/proposal-d
 Decorators are a language feature which hasn't yet been fully ratified into the JavaScript specification.
 This means that the implementation version in TypeScript may differ from the implementation in JavaScript when it is decided by TC39.
 
-You can find out more about decorator support in TypeScript in [the handbook](/docs/handbook/decorators.html).
+You can find out more about decorator support in TypeScript in [the handbook](https://www.typescriptlang.org/docs/handbook/decorators.html).
 
 #### Emit Decorator Metadata - `emitDecoratorMetadata`
 
@@ -2860,7 +2860,7 @@ If the factory is defined as `React.createElement` (the default), the compiler w
 
 > Specify the JSX Fragment reference used for fragments when targeting React JSX emit e.g. 'React.Fragment' or 'Fragment'.
 
-Specify the JSX fragment factory function to use when targeting react JSX emit with [`jsxFactory`](#jsxFactory) compiler option is specified, e.g. `Fragment`.
+Specify the JSX fragment factory function to use when targeting react JSX emit with [`jsxFactory`](#jsx-factory---jsxfactory) compiler option is specified, e.g. `Fragment`.
 
 For example with this TSConfig:
 
@@ -2922,7 +2922,7 @@ const HelloWorld = () => (
 
 > Specify module specifier used to import the JSX factory functions when using `jsx: react-jsx*`.
 
-Declares the module specifier to be used for importing the `jsx` and `jsxs` factory functions when using [`jsx`](#jsx) as `"react-jsx"` or `"react-jsxdev"` which were introduced in TypeScript 4.1.
+Declares the module specifier to be used for importing the `jsx` and `jsxs` factory functions when using [`jsx`](#jsx---jsx) as `"react-jsx"` or `"react-jsxdev"` which were introduced in TypeScript 4.1.
 
 With [React 17](https://reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html) the library supports a new form of JSX transformation via a separate import.
 
@@ -3005,7 +3005,7 @@ _Note:_ In order for this to work like you would expect, your `tsx` file must in
 
 > Specify the object invoked for `createElement`. This only applies when targeting `react` JSX emit.
 
-Use [`jsxFactory`](#jsxFactory) instead. Specify the object invoked for `createElement` when targeting `react` for TSX files.
+Use [`jsxFactory`](#jsx-factory---jsxfactory) instead. Specify the object invoked for `createElement` when targeting `react` for TSX files.
 
 #### No Lib - `noLib`
 
@@ -3024,18 +3024,18 @@ This flag is used as part of migrating to the upcoming standard version of class
 
 This flag switches to the upcoming ECMA runtime behavior.
 
-You can read more about the transition in [the 3.7 release notes](/docs/handbook/release-notes/typescript-3-7.html#the-usedefineforclassfields-flag-and-the-declare-property-modifier).
+You can read more about the transition in [the 3.7 release notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#the-usedefineforclassfields-flag-and-the-declare-property-modifier).
 
 #### Module Detection - `moduleDetection`
 
 > Specify what method is used to detect whether a file is a script or a module.
 
 This setting controls how TypeScript determines whether a file is a
-[script or a module](/docs/handbook/modules/theory.html#scripts-and-modules-in-javascript).
+[script or a module](https://www.typescriptlang.org/docs/handbook/modules/theory.html#scripts-and-modules-in-javascript).
 
 There are three choices:
 
-- `"auto"` (default) - TypeScript will not only look for import and export statements, but it will also check whether the `"type"` field in a `package.json` is set to `"module"` when running with [`module`](#module): `nodenext` or `node16`, and check whether the current file is a JSX file when running under [`jsx`](#jsx):  `react-jsx`.
+- `"auto"` (default) - TypeScript will not only look for import and export statements, but it will also check whether the `"type"` field in a `package.json` is set to `"module"` when running with [`module`](#module---module): `nodenext` or `node16`, and check whether the current file is a JSX file when running under [`jsx`](#jsx---jsx):  `react-jsx`.
 
 - `"legacy"` - The same behavior as 4.6 and prior, usings import and export statements to determine whether a file is a module.
 
@@ -3081,7 +3081,7 @@ path/to/example/node_modules/typescript/lib/lib.scripthost.d.ts
 path/to/example/index.ts
 ```
 
-Note if using TypeScript 4.2, prefer [`explainFiles`](#explainFiles) which offers an explanation of why a file was added too.
+Note if using TypeScript 4.2, prefer [`explainFiles`](#explain-files---explainfiles) which offers an explanation of why a file was added too.
 
 #### Explain Files - `explainFiles`
 
@@ -3132,8 +3132,8 @@ index.ts
 
 The output above show:
 
-- The initial lib.d.ts lookup based on [`target`](#target), and the chain of `.d.ts` files which are referenced
-- The `index.ts` file located via the default pattern of [`include`](#include)
+- The initial lib.d.ts lookup based on [`target`](#target---target), and the chain of `.d.ts` files which are referenced
+- The `index.ts` file located via the default pattern of [`include`](#include---include)
 
 This option is intended for debugging how a file has become a part of your compile.
 
@@ -3146,7 +3146,7 @@ Print names of generated files part of the compilation to the terminal.
 This flag is useful in two cases:
 
 - You want to transpile TypeScript as a part of a build chain in the terminal where the filenames are processed in the next command.
-- You are not sure that TypeScript has included a file you expected, as a part of debugging the [file inclusion settings](#Project_Files_0).
+- You are not sure that TypeScript has included a file you expected, as a part of debugging the [file inclusion settings](#root-fields).
 
 For example:
 
@@ -3181,7 +3181,7 @@ Normally, TypeScript would return silently on success.
 
 #### Trace Resolution - `traceResolution`
 
-> Log paths used during the [`moduleResolution`](#moduleResolution) process.
+> Log paths used during the [`moduleResolution`](#module-resolution---moduleresolution) process.
 
 When you are trying to debug why a module isn't being included.
 You can set `traceResolution` to `true` to have TypeScript print information about its resolution process for each processed file.
@@ -3190,9 +3190,9 @@ You can set `traceResolution` to `true` to have TypeScript print information abo
 
 > Output compiler performance information after building.
 
-Used to output diagnostic information for debugging. This command is a subset of [`extendedDiagnostics`](#extendedDiagnostics) which are more user-facing results, and easier to interpret.
+Used to output diagnostic information for debugging. This command is a subset of [`extendedDiagnostics`](#extended-diagnostics---extendeddiagnostics) which are more user-facing results, and easier to interpret.
 
-If you have been asked by a TypeScript compiler engineer to give the results using this flag in a compile, in which there is no harm in using [`extendedDiagnostics`](#extendedDiagnostics) instead.
+If you have been asked by a TypeScript compiler engineer to give the results using this flag in a compile, in which there is no harm in using [`extendedDiagnostics`](#extended-diagnostics---extendeddiagnostics) instead.
 
 #### Extended Diagnostics - `extendedDiagnostics`
 
@@ -3238,9 +3238,9 @@ Disable full type checking (only critical parse and emit errors will be reported
 
 Tells TypeScript to save information about the project graph from the last compilation to files stored on disk. This
 creates a series of `.tsbuildinfo` files in the same folder as your compilation output. They are not used by your
-JavaScript at runtime and can be safely deleted. You can read more about the flag in the [3.4 release notes](/docs/handbook/release-notes/typescript-3-4.html#faster-subsequent-builds-with-the---incremental-flag).
+JavaScript at runtime and can be safely deleted. You can read more about the flag in the [3.4 release notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#faster-subsequent-builds-with-the---incremental-flag).
 
-To control which folders you want to the files to be built to, use the config option [`tsBuildInfoFile`](#tsBuildInfoFile).
+To control which folders you want to the files to be built to, use the config option [`tsBuildInfoFile`](#ts-build-info-file---tsbuildinfofile).
 
 #### Composite - `composite`
 
@@ -3251,11 +3251,11 @@ itself, under `--build` mode) to quickly determine if a project has been built y
 
 When this setting is on:
 
-- The [`rootDir`](#rootDir) setting, if not explicitly set, defaults to the directory containing the `tsconfig.json` file.
+- The [`rootDir`](#root-dir---rootdir) setting, if not explicitly set, defaults to the directory containing the `tsconfig.json` file.
 
-- All implementation files must be matched by an [`include`](#include) pattern or listed in the [`files`](#files) array. If this constraint is violated, `tsc` will inform you which files weren't specified.
+- All implementation files must be matched by an [`include`](#include---include) pattern or listed in the [`files`](#files---files) array. If this constraint is violated, `tsc` will inform you which files weren't specified.
 
-- [`declaration`](#declaration) defaults to `true`
+- [`declaration`](#declaration---declaration) defaults to `true`
 
 You can find documentation on TypeScript projects in [the handbook](https://www.typescriptlang.org/docs/handbook/project-references.html).
 
@@ -3264,7 +3264,7 @@ You can find documentation on TypeScript projects in [the handbook](https://www.
 > The file to store `.tsbuildinfo` incremental build information in.
 
 This setting lets you specify a file for storing incremental compilation information as a part of composite projects which enables faster
-building of larger TypeScript codebases. You can read more about composite projects [in the handbook](/docs/handbook/project-references.html).
+building of larger TypeScript codebases. You can read more about composite projects [in the handbook](https://www.typescriptlang.org/docs/handbook/project-references.html).
 
 The default depends on a combination of other settings:
 
@@ -3280,14 +3280,14 @@ The default depends on a combination of other settings:
 
 > Disable preferring source files instead of declaration files when referencing composite projects.
 
-When working with [composite TypeScript projects](/docs/handbook/project-references.html), this option provides a way to go [back to the pre-3.7](/docs/handbook/release-notes/typescript-3-7.html#build-free-editing-with-project-references) behavior where d.ts files were used to as the boundaries between modules.
+When working with [composite TypeScript projects](https://www.typescriptlang.org/docs/handbook/project-references.html), this option provides a way to go [back to the pre-3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#build-free-editing-with-project-references) behavior where d.ts files were used to as the boundaries between modules.
 In 3.7 the source of truth is now your TypeScript files.
 
 #### Disable Solution Searching - `disableSolutionSearching`
 
 > Opt a project out of multi-project reference checking when editing.
 
-When working with [composite TypeScript projects](/docs/handbook/project-references.html), this option provides a way to declare that you do not want a project to be included when using features like _find all references_ or _jump to definition_ in an editor.
+When working with [composite TypeScript projects](https://www.typescriptlang.org/docs/handbook/project-references.html), this option provides a way to declare that you do not want a project to be included when using features like _find all references_ or _jump to definition_ in an editor.
 
 This flag is something you can use to increase responsiveness in large composite projects.
 
@@ -3362,7 +3362,7 @@ var s: string = x;
 
 > Skip type checking .d.ts files that are included with TypeScript.
 
-Use [`skipLibCheck`](#skipLibCheck) instead. Skip type checking of default library declaration files.
+Use [`skipLibCheck`](#skip-lib-check---skiplibcheck) instead. Skip type checking of default library declaration files.
 
 #### Skip Lib Check - `skipLibCheck`
 
@@ -3389,7 +3389,7 @@ Note, that if these issues come from the TypeScript standard library you can rep
 
 > Specify emit/checking behavior for imports that are only used for types.
 
-Deprecated in favor of [`verbatimModuleSyntax`](#verbatimModuleSyntax).
+Deprecated in favor of [`verbatimModuleSyntax`](#verbatim-module-syntax---verbatimmodulesyntax).
 
 This flag controls how `import` works, there are 3 different options:
 
@@ -3403,9 +3403,9 @@ This flag works because you can use `import type` to explicitly create an `impor
 
 #### Out - `out`
 
-> Deprecated setting. Use [`outFile`](#outFile) instead.
+> Deprecated setting. Use [`outFile`](#out-file---outfile) instead.
 
-Use [`outFile`](#outFile) instead.
+Use [`outFile`](#out-file---outfile) instead.
 
 The `out` option computes the final file location in a way that is not predictable or consistent.
 This option is retained for backward compatibility only and is deprecated.
@@ -3435,13 +3435,13 @@ type Point = { x: number; y: number };
 const p: Point = { x: 1, y: 3, m: 10 };
 ```
 
-This flag was added to help people migrate to the stricter checking of new object literals in [TypeScript 1.6](/docs/handbook/release-notes/typescript-1-6.html#stricter-object-literal-assignment-checks).
+This flag was added to help people migrate to the stricter checking of new object literals in [TypeScript 1.6](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-1-6.html#stricter-object-literal-assignment-checks).
 
 We don't recommend using this flag in a modern codebase, you can suppress one-off cases where you need it using `// @ts-ignore`.
 
 #### Suppress Implicit Any Index Errors - `suppressImplicitAnyIndexErrors`
 
-> Suppress [`noImplicitAny`](#noImplicitAny) errors when indexing objects that lack index signatures.
+> Suppress [`noImplicitAny`](#no-implicit-any---noimplicitany) errors when indexing objects that lack index signatures.
 
 Turning `suppressImplicitAnyIndexErrors` on suppresses reporting the error about implicit anys when indexing into objects, as shown in the following example:
 
@@ -3480,7 +3480,7 @@ This flag can be used to remove that check.
 
 > Preserve unused imported values in the JavaScript output that would otherwise be removed.
 
-Deprecated in favor of [`verbatimModuleSyntax`](#verbatimModuleSyntax).
+Deprecated in favor of [`verbatimModuleSyntax`](#verbatim-module-syntax---verbatimmodulesyntax).
 
 There are some cases where TypeScript can't detect that you're using an import. For example, take the following code:
 
@@ -3492,7 +3492,7 @@ eval("console.log(new Animal().isDangerous())");
 
 or code using 'Compiles to HTML' languages like Svelte or Vue. `preserveValueImports` will prevent TypeScript from removing the import, even if it appears unused.
 
-When combined with [`isolatedModules`](#isolatedModules): imported types _must_ be marked as type-only because compilers that process single files at a time have no way of knowing whether imports are values that appear unused, or a type that must be removed in order to avoid a runtime crash.
+When combined with [`isolatedModules`](#isolated-modules---isolatedmodules): imported types _must_ be marked as type-only because compilers that process single files at a time have no way of knowing whether imports are values that appear unused, or a type that must be removed in order to avoid a runtime crash.
 
 #### Keyof Strings Only - `keyofStringsOnly`
 
@@ -3500,13 +3500,13 @@ When combined with [`isolatedModules`](#isolatedModules): imported types _must_ 
 
 This flag changes the `keyof` type operator to return `string` instead of `string | number` when applied to a type with a string index signature.
 
-This flag is used to help people keep this behavior from [before TypeScript 2.9's release](/docs/handbook/release-notes/typescript-2-9.html#support-number-and-symbol-named-properties-with-keyof-and-mapped-types).
+This flag is used to help people keep this behavior from [before TypeScript 2.9's release](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-9.html#support-number-and-symbol-named-properties-with-keyof-and-mapped-types).
 
 ---
 
 ## Watch Options
 
-You can configure the how TypeScript `--watch` works. This section is mainly for handling case where `fs.watch` and `fs.watchFile` have additional constraints like on Linux. You can read more at [Configuring Watch](/docs/handbook/configuring-watch.html).
+You can configure the how TypeScript `--watch` works. This section is mainly for handling case where `fs.watch` and `fs.watchFile` have additional constraints like on Linux. You can read more at [Configuring Watch](https://www.typescriptlang.org/docs/handbook/configuring-watch.html).
 
 TypeScript 3.8 shipped a new strategy for watching directories, which is crucial for efficiently picking up changes to `node_modules`.
 
@@ -3566,7 +3566,7 @@ Synchronously call callbacks and update the state of directory watchers on platf
 
 > Remove a list of directories from the watch process.
 
-You can use [`excludeFiles`](#excludeFiles) to drastically reduce the number of files which are watched during `--watch`. This can be a useful way to reduce the number of open file which TypeScript tracks on Linux.
+You can use [`excludeFiles`](#exclude-files---excludefiles) to drastically reduce the number of files which are watched during `--watch`. This can be a useful way to reduce the number of open file which TypeScript tracks on Linux.
 
 ```json
 {
